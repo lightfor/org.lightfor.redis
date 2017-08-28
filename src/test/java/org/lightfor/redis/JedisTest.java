@@ -7,6 +7,7 @@ import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -64,6 +65,38 @@ public class JedisTest {
         JedisCluster jc = new JedisCluster(jedisClusterNodes);
         jc.set("foo", "bar");
         String value = jc.get("foo");
+    }
+
+    @Test
+    public void test5(){
+        JedisCluster jedisCluster = getJedisCluster();
+        System.out.println(jedisCluster.set("test", "test", "NX", "EX", 10));
+        System.out.println(jedisCluster.set("test", "test", "NX", "EX", 10));
+        closeJedisCluster(jedisCluster);
+    }
+
+    private JedisCluster getJedisCluster() {
+        Set<HostAndPort> node = new HashSet<>();
+        HostAndPort hostAndPort = new HostAndPort("127.0.0.1", 6379);
+        node.add(hostAndPort);
+        int timeout = 1000;
+        int maxAttempts = 3;
+        return new JedisCluster(node, timeout, maxAttempts);
+    }
+
+    private void closeJedisCluster(JedisCluster jedisCluster){
+        try {
+            jedisCluster.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void test6(){
+        JedisCluster jedisCluster = getJedisCluster();
+        System.out.println(jedisCluster.get("test"));
+        closeJedisCluster(jedisCluster);
     }
 
 
